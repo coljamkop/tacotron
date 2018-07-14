@@ -15,17 +15,19 @@ from train import Graph
 from utils import spectrogram2wav
 from scipy.io.wavfile import write
 import os
+import sys
 import numpy as np
 
 
-def synthesize():
+def synthesize(synth_data=""):
     if not os.path.exists(hp.sampledir): os.mkdir(hp.sampledir)
 
     # Load graph
     g = Graph(mode="synthesize"); print("Graph loaded")
 
     # Load data
-    texts = load_data(mode="synthesize")
+    #texts = load_data(mode="synthesize")
+    texts = load_data(mode="synthesize", synth_data=synth_data)
 
     saver = tf.train.Saver()
     with tf.Session() as sess:
@@ -45,6 +47,6 @@ def synthesize():
             write(os.path.join(hp.sampledir, '{}.wav'.format(i+1)), hp.sr, audio)
 
 if __name__ == '__main__':
-    synthesize()
+    synthesize(sys.argv[1:])
     print("Done")
 

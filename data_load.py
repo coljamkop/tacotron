@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 #/usr/bin/python2
 '''
-By kyubyong park. kbpark.linguist@gmail.com. 
+By kyubyong park. kbpark.linguist@gmail.com.
 https://www.github.com/kyubyong/tacotron
 '''
 
@@ -30,15 +30,16 @@ def text_normalize(text):
     text = re.sub("[ ]+", " ", text)
     return text
 
-def load_data(mode="train"):
+def load_data(mode="train", synth_data="", data_path="", csv_path=""):
     # Load vocabulary
     char2idx, idx2char = load_vocab()
 
     if mode in ("train", "eval"):
         # Parse
         fpaths, text_lengths, texts = [], [], []
-        transcript = os.path.join(hp.data, 'transcript.csv')
-        lines = codecs.open(transcript, 'r', 'utf-8').readlines()
+        data_path = hp.data if data_path == "" else data_path
+        metadata = os.path.join(data_path, 'metadata.csv') if csv_path == "" else csv_path
+        lines = codecs.open(metadata, 'r', 'utf-8').readlines()
         total_hours = 0
         if mode=="train":
             lines = lines[1:]
@@ -48,7 +49,7 @@ def load_data(mode="train"):
         for line in lines:
             fname, _, text = line.strip().split("|")
 
-            fpath = os.path.join(hp.data, "wavs", fname + ".wav")
+            fpath = os.path.join(data_path, "wavs", fname + ".wav")
             fpaths.append(fpath)
 
             text = text_normalize(text) + "E"  # E: EOS
@@ -59,8 +60,13 @@ def load_data(mode="train"):
         return fpaths, text_lengths, texts
     else:
         # Parse
-        lines = codecs.open(hp.test_data, 'r', 'utf-8').readlines()[1:]
-        sents = [text_normalize(line.split(" ", 1)[-1]).strip() + "E" for line in lines] # text normalization, E: EOS
+        if synth_data == "":
+            lines = codecs.open(hp.test_data, 'r', 'utf-8').readlines()[1:]
+        else:
+            lines = synth_data if isinstance(synth_data, list) else [synth_data]
+            lines = [unicode(line, "utf-8") for line in lines]
+
+        sents = [text_normalize(line).strip() + "E" for line in lines] # text normalization, E: EOS
         lengths = [len(sent) for sent in sents]
         maxlen = sorted(lengths, reverse=True)[0]
         texts = np.zeros((len(sents), maxlen), np.int32)
@@ -115,5 +121,7 @@ def get_batch():
                                             capacity=hp.batch_size * 4,
                                             dynamic_pad=True)
 
+    print(texts)
     return texts, mels, mags, fnames, num_batch
 
+get_batch()

@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 #/usr/bin/python2
 '''
-By kyubyong park. kbpark.linguist@gmail.com. 
+By kyubyong park. kbpark.linguist@gmail.com.
 https://www.github.com/kyubyong/tacotron
 '''
 
@@ -91,10 +91,10 @@ class Graph:
 
             tf.summary.audio("{}/sample".format(mode), tf.expand_dims(self.audio, 0), hp.sr)
             self.merged = tf.summary.merge_all()
-         
+
 if __name__ == '__main__':
     g = Graph(); print("Training Graph loaded")
-    
+
     # with g.graph.as_default():
     sv = tf.train.Supervisor(logdir=hp.logdir, save_summaries_secs=60, save_model_secs=0)
     with sv.managed_session() as sess:
