@@ -54,6 +54,19 @@ LJ001-0001|Printing, in the only sense with which we are at present concerned, d
 When the mode is set to "synth", you may pass in either a single string or an array of
 strings that you wish to synthesize.
 
+```python
+def synthesize(synth_data="", on_load="", on_synth="", on_complete=""):
+```
+
+synth_data may be either a string or an array of strings for the data that you want to
+to synthesize. If no data is provided then the harvard sentences file will be used as
+data.
+
+The on_load, on_synth and on_complete are optional parameters. They are
+callback functions that will be called at different parts of the lifecycle of the synthesis.
+the on_load callback will recieve the transcript of the data being loaded. The on_synth
+function will be passed the audio data as it is synthesized.
+
 ## Sample Synthesis
 
 We generate speech samples based on [Harvard Sentences](http://www.cs.columbia.edu/~hgs/audio/harvard.html) as the original paper does. It is already included in the repo.
