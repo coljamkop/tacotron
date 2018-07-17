@@ -18,8 +18,7 @@ import os
 import sys
 import numpy as np
 
-
-def synthesize(synth_data=""):
+def synthesize(synth_data="", on_load="", on_synth="", on_complete=""):
     if not os.path.exists(hp.sampledir): os.mkdir(hp.sampledir)
 
     # Load graph
@@ -28,6 +27,7 @@ def synthesize(synth_data=""):
     # Load data
     #texts = load_data(mode="synthesize")
     texts = load_data(mode="synthesize", synth_data=synth_data)
+    if (hasattr(on_load, '__call__')): on_load(texts)
 
     saver = tf.train.Saver()
     with tf.Session() as sess:
@@ -44,7 +44,10 @@ def synthesize(synth_data=""):
         for i, mag in enumerate(mags):
             print("File {}.wav is being generated ...".format(i+1))
             audio = spectrogram2wav(mag)
+            if (hasattr(on_synth, '__call__')): on_synth(audio)
             write(os.path.join(hp.sampledir, '{}.wav'.format(i+1)), hp.sr, audio)
+
+        if (hasattr(on_complete, '__call__')): on_complete()
 
 if __name__ == '__main__':
     synthesize(sys.argv[1:])

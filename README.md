@@ -30,6 +30,30 @@ Nick's audiobooks are additionally used to see if the model can learn even with 
   * STEP 2. Run `python train.py`. (If you set `prepro` True, run `python prepro.py` first)
   * STEP 3. Run `python eval.py` regularly during training.
 
+## Using the API
+Several methods have been added in order to make this implementation of tacotron usable in
+external applications.
+
+```python
+def load_data(mode="train", synth_data="", data_path="", csv_path=""):
+```
+
+The load data function may take a few optional parameters. If these parameters are left
+to their defaults, they will simply use the information stored in hyperparams.py.
+
+data_path and csv_path are of interest when the mode is set to train. These are the
+file paths to the audio data and transcript data respectively.
+
+Note that the transcript.csv files should follow the format
+file_name|transcript
+
+So using the LJ dataset as an example the transcript for the first file in your CSV would
+look like this:
+LJ001-0001|Printing, in the only sense with which we are at present concerned, differs from most if not from all the arts and crafts represented in the Exhibition|Printing, in the only sense with which we are at present concerned, differs from most if not from all the arts and crafts represented in the Exhibition
+
+When the mode is set to "synth", you may pass in either a single string or an array of
+strings that you wish to synthesize.
+
 ## Sample Synthesis
 
 We generate speech samples based on [Harvard Sentences](http://www.cs.columbia.edu/~hgs/audio/harvard.html) as the original paper does. It is already included in the repo.
@@ -55,31 +79,31 @@ We generate speech samples based on [Harvard Sentences](http://www.cs.columbia.e
   * Keep in mind 200k steps may not be enough for the best performance.
   * [LJ 200k](https://www.dropbox.com/s/8kxa3xh2vfna3s9/LJ_logdir.zip?dl=0)
   * [WEB 200k](https://www.dropbox.com/s/g7m6xhd350ozkz7/WEB_logdir.zip?dl=0)
-  
+
 ## Notes
 
   * It's important to monitor the attention plots during training.  If the attention plots look good (alignment looks linear), and then they look bad (the plots will look similar to what they looked like in the begining of training), then training has gone awry and most likely will need to be restarted from a checkpoint where the attention looked good, because we've learned that it's unlikely that the loss will ever recover.  This deterioration of attention will correspond with a spike in the loss.
 
   * In the original paper, the authors said, "An important trick we discovered was predicting multiple, non-overlapping output frames at each decoder step" where the number of of multiple frame is the reduction factor, `r`.  We originally interpretted this as predicting non-sequential frames during each decoding step `t`.  Thus were using the following scheme (with `r=5`) during decoding.
-        
-        
+
+
         t    frame numbers
         -----------------------
         0    [ 0  1  2  3  4]
         1    [ 5  6  7  8  9]
         2    [10 11 12 13 14]
         ...
-        
+
       After much experimentation, we were unable to have our model learning anything useful.  We then switched to predicting `r` sequential frames during each decoding step.
-          
-        
+
+
         t    frame numbers
         -----------------------
         0    [ 0  1  2  3  4]
         1    [ 5  6  7  8  9]
         2    [10 11 12 13 14]
         ...
-        
+
       With this setup we noticed improvements in the attention and have since kept it.
 
   * **Perhaps the most important hyperparemeter is the learning rate.**  With  an intitial learning rate of 0.002 we were never able to learn a clean attention, the loss would frequently explode.  With an initial learning rate of 0.001 we were able to learn a clean attention and train for much longer get decernable words during synthesis.
@@ -97,6 +121,6 @@ We generate speech samples based on [Harvard Sentences](http://www.cs.columbia.e
 
   * [Efficiently Trainable Text-to-Speech System Based on Deep Convolutional Networks with Guided Attention](https://arxiv.org/abs/1710.08969)
   * [Storytime - End to end neural networks for audiobooks](http://web.stanford.edu/class/cs224s/reports/Pierce_Freeman.pdf)
-  
+
   Jan. 2018,
   Kyubyong Park & [Tommy Mulc](tmulc18@gmail.com)
